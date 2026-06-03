@@ -4,38 +4,39 @@ import os
 
 TOKEN = os.getenv("BOT_TOKEN")
 
+EARNINGS_CHANNEL_ID = 1511454316588826754
+
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
-
-EARNINGS_CHANNEL_ID = 1511454316588826754
 
 
 @client.event
 async def on_ready():
-    print(f"Logged in as {client.user}")
+    print("BOT READY TRIGGERED:", client.user)
 
-    # start your loop (IMPORTANT)
-    earnings_post.start()
+    # start loop
+    if not earnings_post.is_running():
+        earnings_post.start()
+        print("TASK STARTED")
 
 
-@tasks.loop(hours=24)  # change timing if you want
+@tasks.loop(seconds=30)  # 30 sec test interval (change later)
 async def earnings_post():
+    print("LOOP RUNNING")
+
     channel = client.get_channel(EARNINGS_CHANNEL_ID)
 
+    print("CHANNEL FOUND:", channel)
+
     if channel is None:
-        print("Channel not found — check ID or bot access")
+        print("ERROR: Channel is None (bot can't access it)")
         return
 
-    message = """📊 **EARNINGS WATCHLIST**
-
-🔥 NVDA
-🔥 TSLA
-🔥 AAPL
-🔥 AMD
-"""
-
-    await channel.send(message)
-    print("Earnings posted!")
+    try:
+        await channel.send("📊 Earnings bot is working!")
+        print("MESSAGE SENT")
+    except Exception as e:
+        print("SEND ERROR:", e)
 
 
 client.run(TOKEN)
