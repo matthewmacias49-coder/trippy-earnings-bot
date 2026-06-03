@@ -5,6 +5,9 @@ import requests
 from datetime import datetime, timedelta
 import pytz
 
+# =========================
+# ENV VARS
+# =========================
 TOKEN = os.getenv("BOT_TOKEN")
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 
@@ -17,10 +20,11 @@ PST = pytz.timezone("US/Pacific")
 
 
 # =========================
-# FMP EARNINGS DATA
+# FMP EARNINGS FUNCTION
 # =========================
 def get_earnings(from_date, to_date):
-    url = f"https://financialmodelingprep.com/api/v3/earning_calendar"
+    url = "https://financialmodelingprep.com/api/v3/earning_calendar"
+
     params = {
         "from": from_date,
         "to": to_date,
@@ -54,8 +58,34 @@ def get_earnings(from_date, to_date):
 async def on_ready():
     print("BOT READY:", client.user)
 
+    # 🧪 TEST RUN ON START (VERY IMPORTANT)
+    await test_run()
+
     today_task.start()
     weekly_task.start()
+
+
+# =========================
+# TEST FUNCTION
+# =========================
+async def test_run():
+    channel = client.get_channel(EARNINGS_CHANNEL_ID)
+
+    if not channel:
+        print("Channel not found for test")
+        return
+
+    today = datetime.now(PST).date().strftime("%Y-%m-%d")
+
+    earnings = get_earnings(today, today)
+
+    if not earnings:
+        msg = "🧪 **TEST RUN**\n\nNo earnings today (or API empty)."
+    else:
+        msg = "🧪 **TEST RUN - TODAY EARNINGS**\n\n" + "\n".join(earnings)
+
+    await channel.send(msg)
+    print("TEST MESSAGE SENT")
 
 
 # =========================
@@ -82,14 +112,14 @@ async def today_task():
         if not earnings:
             msg = "📊 **TODAY EARNINGS**\n\nNo earnings today."
         else:
-            msg = "📊 **TODAY EARNINGS (FMP)**\n\n" + "\n".join(earnings)
+            msg = "📊 **TODAY EARNINGS (6AM PST)**\n\n" + "\n".join(earnings)
 
         await channel.send(msg)
-        print("Daily earnings posted")
+        print("6AM earnings posted")
 
 
 # =========================
-# SUNDAY 5PM WEEKLY
+# SUNDAY 5PM PST
 # =========================
 @tasks.loop(minutes=1)
 async def weekly_task():
@@ -119,4 +149,7 @@ async def weekly_task():
         print("Weekly earnings posted")
 
 
+# =========================
+# START BOT
+# =========================
 client.run(TOKEN)
