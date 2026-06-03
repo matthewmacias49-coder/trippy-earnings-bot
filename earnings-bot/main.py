@@ -1,3 +1,5 @@
+print("MAIN.PY VERSION TEST")
+
 import discord
 from discord.ext import tasks
 import os
