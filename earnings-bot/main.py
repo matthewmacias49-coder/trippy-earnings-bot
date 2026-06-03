@@ -18,13 +18,13 @@ client = discord.Client(intents=intents)
 
 PST = pytz.timezone("US/Pacific")
 
-# prevents double posting
+# prevent double posts
 last_daily_run = None
 last_weekly_run = None
 
 
 # =========================
-# FMP EARNINGS
+# FMP EARNINGS API
 # =========================
 def get_earnings(from_date, to_date):
     url = "https://financialmodelingprep.com/api/v3/earning_calendar"
@@ -56,18 +56,31 @@ def get_earnings(from_date, to_date):
 
 
 # =========================
-# READY
+# READY (FIXED + SAFE)
 # =========================
 @client.event
 async def on_ready():
-    print("BOT READY:", client.user)
+    print("BOT READY TRIGGERED:", client.user)
 
-    channel = client.get_channel(CHANNEL_ID)
-    if channel:
+    try:
+        channel = await client.fetch_channel(CHANNEL_ID)
         await channel.send("🟢 Trippy Alerts online")
+        print("ONLINE MESSAGE SENT")
 
-    today_task.start()
-    weekly_task.start()
+    except Exception as e:
+        print("ON_READY ERROR:", e)
+
+    try:
+        if not today_task.is_running():
+            today_task.start()
+            print("DAILY TASK STARTED")
+
+        if not weekly_task.is_running():
+            weekly_task.start()
+            print("WEEKLY TASK STARTED")
+
+    except Exception as e:
+        print("TASK START ERROR:", e)
 
 
 # =========================
@@ -82,7 +95,6 @@ async def today_task():
     if now.weekday() >= 5:
         return
 
-    # trigger AFTER 6AM once per day
     if now.hour >= 6:
 
         day = now.date().isoformat()
@@ -90,24 +102,25 @@ async def today_task():
         if last_daily_run == day:
             return
 
-        channel = client.get_channel(CHANNEL_ID)
-        if not channel:
-            print("Channel missing")
-            return
+        try:
+            channel = await client.fetch_channel(CHANNEL_ID)
 
-        earnings = get_earnings(day, day)
+            earnings = get_earnings(day, day)
 
-        msg = "📊 **TODAY EARNINGS**\n\n"
-        msg += "\n".join(earnings) if earnings else "No earnings today."
+            msg = "📊 **TODAY EARNINGS**\n\n"
+            msg += "\n".join(earnings) if earnings else "No earnings today."
 
-        await channel.send(msg)
+            await channel.send(msg)
 
-        print("DAILY SENT")
-        last_daily_run = day
+            print("DAILY SENT")
+            last_daily_run = day
+
+        except Exception as e:
+            print("DAILY TASK ERROR:", e)
 
 
 # =========================
-# SUNDAY 5PM PST WEEKLY
+# WEEKLY SUNDAY 5PM PST
 # =========================
 @tasks.loop(minutes=1)
 async def weekly_task():
@@ -118,7 +131,6 @@ async def weekly_task():
     if now.weekday() != 6:
         return
 
-    # trigger AFTER 5PM once per week
     if now.hour >= 17:
 
         week_id = now.strftime("%Y-%U")
@@ -126,26 +138,27 @@ async def weekly_task():
         if last_weekly_run == week_id:
             return
 
-        channel = client.get_channel(CHANNEL_ID)
-        if not channel:
-            print("Channel missing")
-            return
+        try:
+            channel = await client.fetch_channel(CHANNEL_ID)
 
-        start = now.date().isoformat()
-        end = (now.date() + timedelta(days=7)).isoformat()
+            start = now.date().isoformat()
+            end = (now.date() + timedelta(days=7)).isoformat()
 
-        earnings = get_earnings(start, end)
+            earnings = get_earnings(start, end)
 
-        msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\n"
-        msg += "\n".join(earnings) if earnings else "No earnings next week."
+            msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\n"
+            msg += "\n".join(earnings) if earnings else "No earnings next week."
 
-        await channel.send(msg)
+            await channel.send(msg)
 
-        print("WEEKLY SENT")
-        last_weekly_run = week_id
+            print("WEEKLY SENT")
+            last_weekly_run = week_id
+
+        except Exception as e:
+            print("WEEKLY TASK ERROR:", e)
 
 
 # =========================
-# RUN
+# RUN BOT
 # =========================
 client.run(TOKEN)
