@@ -1,25 +1,41 @@
 import discord
+from discord.ext import tasks
 import os
 
 TOKEN = os.getenv("BOT_TOKEN")
 
 intents = discord.Intents.default()
-intents.message_content = True
-
 client = discord.Client(intents=intents)
+
+EARNINGS_CHANNEL_ID = 1511454316588826754
+
 
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user}")
-    print("BOT READY")
 
-@client.event
-async def on_message(message):
-    print(f"SAW MESSAGE: {message.content}")
+    # start your loop (IMPORTANT)
+    earnings_post.start()
 
-    if message.author.bot:
+
+@tasks.loop(hours=24)  # change timing if you want
+async def earnings_post():
+    channel = client.get_channel(EARNINGS_CHANNEL_ID)
+
+    if channel is None:
+        print("Channel not found — check ID or bot access")
         return
 
-    await message.channel.send("I SAW YOUR MESSAGE")
+    message = """📊 **EARNINGS WATCHLIST**
+
+🔥 NVDA
+🔥 TSLA
+🔥 AAPL
+🔥 AMD
+"""
+
+    await channel.send(message)
+    print("Earnings posted!")
+
 
 client.run(TOKEN)
