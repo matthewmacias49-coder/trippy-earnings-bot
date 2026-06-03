@@ -14,24 +14,27 @@ client = discord.Client(intents=intents)
 @client.event
 async def on_ready():
     print(f"Logged in as {client.user}")
+    print("EARNINGS BOT READY")
 
 
 @client.event
 async def on_message(message):
-    if message.author == client.user:
+    if message.author.bot:
         return
 
-    print(f"Message received: {message.content}")
+    print(f"MESSAGE RECEIVED: {message.content}")
 
-    if message.content.lower() == "!earnings":
+    if message.content.lower().strip() == "!earnings":
+
+        await message.channel.send("🔍 Looking up earnings...")
 
         try:
-            url = (
-                f"https://financialmodelingprep.com/api/v3/earning_calendar"
-                f"?apikey={FMP_API_KEY}"
-            )
+            url = f"https://financialmodelingprep.com/api/v3/earning_calendar?apikey={FMP_API_KEY}"
 
             response = requests.get(url, timeout=15)
+
+            print(f"STATUS CODE: {response.status_code}")
+
             data = response.json()
 
             if not data:
@@ -40,30 +43,25 @@ async def on_message(message):
 
             msg = "📅 **UPCOMING EARNINGS**\n\n"
 
-            count = 0
+            for item in data[:10]:
 
-            for item in data:
                 symbol = item.get("symbol", "N/A")
                 date = item.get("date", "N/A")
                 time = item.get("time", "")
 
-                if time == "amc":
-                    session = "PM"
-                elif time == "bmo":
+                if time == "bmo":
                     session = "AM"
+                elif time == "amc":
+                    session = "PM"
                 else:
                     session = "?"
 
                 msg += f"🔥 {symbol} - {date} ({session})\n"
 
-                count += 1
-
-                if count >= 10:
-                    break
-
             await message.channel.send(msg)
 
         except Exception as e:
+            print(e)
             await message.channel.send(f"❌ Error: {e}")
 
 
