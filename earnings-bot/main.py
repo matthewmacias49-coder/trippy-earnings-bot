@@ -6,21 +6,25 @@ from datetime import datetime, timedelta
 import pytz
 
 # =========================
-# ENV VARS
+# ENV
 # =========================
 TOKEN = os.getenv("BOT_TOKEN")
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 
-EARNINGS_CHANNEL_ID = 1511454316588826754
+CHANNEL_ID = 1511454316588826754
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
 PST = pytz.timezone("US/Pacific")
 
+# prevents double posting
+last_daily_run = None
+last_weekly_run = None
+
 
 # =========================
-# FMP EARNINGS FUNCTION
+# FMP EARNINGS
 # =========================
 def get_earnings(from_date, to_date):
     url = "https://financialmodelingprep.com/api/v3/earning_calendar"
@@ -52,104 +56,96 @@ def get_earnings(from_date, to_date):
 
 
 # =========================
-# READY EVENT
+# READY
 # =========================
 @client.event
 async def on_ready():
     print("BOT READY:", client.user)
 
-    # 🧪 TEST RUN ON START (VERY IMPORTANT)
-    await test_run()
+    channel = client.get_channel(CHANNEL_ID)
+    if channel:
+        await channel.send("🟢 Trippy Alerts online")
 
     today_task.start()
     weekly_task.start()
 
 
 # =========================
-# TEST FUNCTION
-# =========================
-async def test_run():
-    channel = client.get_channel(EARNINGS_CHANNEL_ID)
-
-    if not channel:
-        print("Channel not found for test")
-        return
-
-    today = datetime.now(PST).date().strftime("%Y-%m-%d")
-
-    earnings = get_earnings(today, today)
-
-    if not earnings:
-        msg = "🧪 **TEST RUN**\n\nNo earnings today (or API empty)."
-    else:
-        msg = "🧪 **TEST RUN - TODAY EARNINGS**\n\n" + "\n".join(earnings)
-
-    await channel.send(msg)
-    print("TEST MESSAGE SENT")
-
-
-# =========================
-# 6AM PST MON–FRI
+# DAILY 6AM PST MON-FRI
 # =========================
 @tasks.loop(minutes=1)
 async def today_task():
+    global last_daily_run
+
     now = datetime.now(PST)
 
     if now.weekday() >= 5:
         return
 
-    if now.hour == 6 and now.minute == 0:
+    # trigger AFTER 6AM once per day
+    if now.hour >= 6:
 
-        channel = client.get_channel(EARNINGS_CHANNEL_ID)
-        if not channel:
-            print("Channel not found")
+        day = now.date().isoformat()
+
+        if last_daily_run == day:
             return
 
-        today = now.date().strftime("%Y-%m-%d")
+        channel = client.get_channel(CHANNEL_ID)
+        if not channel:
+            print("Channel missing")
+            return
 
-        earnings = get_earnings(today, today)
+        earnings = get_earnings(day, day)
 
-        if not earnings:
-            msg = "📊 **TODAY EARNINGS**\n\nNo earnings today."
-        else:
-            msg = "📊 **TODAY EARNINGS (6AM PST)**\n\n" + "\n".join(earnings)
+        msg = "📊 **TODAY EARNINGS**\n\n"
+        msg += "\n".join(earnings) if earnings else "No earnings today."
 
         await channel.send(msg)
-        print("6AM earnings posted")
+
+        print("DAILY SENT")
+        last_daily_run = day
 
 
 # =========================
-# SUNDAY 5PM PST
+# SUNDAY 5PM PST WEEKLY
 # =========================
 @tasks.loop(minutes=1)
 async def weekly_task():
+    global last_weekly_run
+
     now = datetime.now(PST)
 
     if now.weekday() != 6:
         return
 
-    if now.hour == 17 and now.minute == 0:
+    # trigger AFTER 5PM once per week
+    if now.hour >= 17:
 
-        channel = client.get_channel(EARNINGS_CHANNEL_ID)
-        if not channel:
-            print("Channel not found")
+        week_id = now.strftime("%Y-%U")
+
+        if last_weekly_run == week_id:
             return
 
-        start = now.date().strftime("%Y-%m-%d")
-        end = (now.date() + timedelta(days=7)).strftime("%Y-%m-%d")
+        channel = client.get_channel(CHANNEL_ID)
+        if not channel:
+            print("Channel missing")
+            return
+
+        start = now.date().isoformat()
+        end = (now.date() + timedelta(days=7)).isoformat()
 
         earnings = get_earnings(start, end)
 
-        if not earnings:
-            msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\nNo earnings next week."
-        else:
-            msg = "📅 **WEEKLY EARNINGS CALENDAR (FMP)**\n\n" + "\n".join(earnings)
+        msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\n"
+        msg += "\n".join(earnings) if earnings else "No earnings next week."
 
         await channel.send(msg)
-        print("Weekly earnings posted")
+
+        print("WEEKLY SENT")
+        last_weekly_run = week_id
 
 
 # =========================
-# START BOT
+# RUN
 # =========================
 client.run(TOKEN)
