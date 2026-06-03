@@ -1,86 +1,122 @@
 import discord
 from discord.ext import tasks
 import os
-import yfinance as yf
+import requests
 from datetime import datetime, timedelta
+import pytz
 
 TOKEN = os.getenv("BOT_TOKEN")
+FMP_API_KEY = os.getenv("FMP_API_KEY")
 
 EARNINGS_CHANNEL_ID = 1511454316588826754
 
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
-
-# ---------- REAL EARNINGS FUNCTION ----------
-def get_earnings():
-    tickers = [
-        "AAPL", "MSFT", "NVDA", "TSLA", "AMZN",
-        "META", "AMD", "GOOGL", "NFLX", "PLTR"
-    ]
-
-    results = []
-    today = datetime.now().date()
-    end = today + timedelta(days=7)
-
-    for t in tickers:
-        try:
-            stock = yf.Ticker(t)
-            cal = stock.calendar
-
-            if cal is not None and not cal.empty:
-                earnings_date = cal.iloc[0, 0]
-
-                if isinstance(earnings_date, str):
-                    earnings_date = datetime.strptime(
-                        earnings_date.split(" ")[0],
-                        "%Y-%m-%d"
-                    ).date()
-
-                if today <= earnings_date <= end:
-                    results.append(f"🔥 {t} — {earnings_date}")
-
-        except Exception as e:
-            print(f"{t} error: {e}")
-
-    return results
+PST = pytz.timezone("US/Pacific")
 
 
-# ---------- READY ----------
-@client.event
-async def on_ready():
-    print("BOT READY TRIGGERED:", client.user)
-
-    if not earnings_post.is_running():
-        earnings_post.start()
-        print("TASK STARTED")
-
-
-# ---------- LOOP ----------
-@tasks.loop(hours=24)  # daily post (change to 30 sec if testing)
-async def earnings_post():
-    print("FETCHING REAL EARNINGS...")
-
-    channel = client.get_channel(EARNINGS_CHANNEL_ID)
-
-    print("CHANNEL FOUND:", channel)
-
-    if channel is None:
-        print("ERROR: Channel is None")
-        return
-
-    earnings = get_earnings()
-
-    if not earnings:
-        message = "📊 No major earnings in next 7 days (tracked stocks)."
-    else:
-        message = "📊 **REAL EARNINGS CALENDAR (NEXT 7 DAYS)**\n\n" + "\n".join(earnings)
+# =========================
+# FMP EARNINGS DATA
+# =========================
+def get_earnings(from_date, to_date):
+    url = f"https://financialmodelingprep.com/api/v3/earning_calendar"
+    params = {
+        "from": from_date,
+        "to": to_date,
+        "apikey": FMP_API_KEY
+    }
 
     try:
-        await channel.send(message)
-        print("MESSAGE SENT")
+        r = requests.get(url, params=params)
+        data = r.json()
+
+        results = []
+
+        for item in data:
+            symbol = item.get("symbol")
+            date = item.get("date")
+
+            if symbol and date:
+                results.append(f"🔥 {symbol} — {date}")
+
+        return results
+
     except Exception as e:
-        print("SEND ERROR:", e)
+        print("FMP ERROR:", e)
+        return []
+
+
+# =========================
+# READY EVENT
+# =========================
+@client.event
+async def on_ready():
+    print("BOT READY:", client.user)
+
+    today_task.start()
+    weekly_task.start()
+
+
+# =========================
+# 6AM PST MON–FRI
+# =========================
+@tasks.loop(minutes=1)
+async def today_task():
+    now = datetime.now(PST)
+
+    if now.weekday() >= 5:
+        return
+
+    if now.hour == 6 and now.minute == 0:
+
+        channel = client.get_channel(EARNINGS_CHANNEL_ID)
+        if not channel:
+            print("Channel not found")
+            return
+
+        today = now.date().strftime("%Y-%m-%d")
+
+        earnings = get_earnings(today, today)
+
+        if not earnings:
+            msg = "📊 **TODAY EARNINGS**\n\nNo earnings today."
+        else:
+            msg = "📊 **TODAY EARNINGS (FMP)**\n\n" + "\n".join(earnings)
+
+        await channel.send(msg)
+        print("Daily earnings posted")
+
+
+# =========================
+# SUNDAY 5PM WEEKLY
+# =========================
+@tasks.loop(minutes=1)
+async def weekly_task():
+    now = datetime.now(PST)
+
+    if now.weekday() != 6:
+        return
+
+    if now.hour == 17 and now.minute == 0:
+
+        channel = client.get_channel(EARNINGS_CHANNEL_ID)
+        if not channel:
+            print("Channel not found")
+            return
+
+        start = now.date().strftime("%Y-%m-%d")
+        end = (now.date() + timedelta(days=7)).strftime("%Y-%m-%d")
+
+        earnings = get_earnings(start, end)
+
+        if not earnings:
+            msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\nNo earnings next week."
+        else:
+            msg = "📅 **WEEKLY EARNINGS CALENDAR (FMP)**\n\n" + "\n".join(earnings)
+
+        await channel.send(msg)
+        print("Weekly earnings posted")
 
 
 client.run(TOKEN)
