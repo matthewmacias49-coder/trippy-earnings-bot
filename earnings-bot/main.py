@@ -1,5 +1,9 @@
 print("MAIN.PY VERSION TEST")
+print("EARNINGS BOT LOADED V3")
 
+import discord
+from discord.ext import tasks
+...
 import discord
 from discord.ext import tasks
 import os
