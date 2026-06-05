@@ -1,16 +1,14 @@
-print("MAIN.PY VERSION TEST")
-print("EARNINGS BOT LOADED V3")
+import os
+
+print("🚨 EARNINGS BOT STARTED 🚨")
+print("TOKEN EXISTS:", os.getenv("BOT_TOKEN") is not None)
+print("FMP EXISTS:", os.getenv("FMP_API_KEY") is not None)
 
 import discord
 from discord.ext import tasks
-...
-import discord
-from discord.ext import tasks
-import os
 import requests
 from datetime import datetime, timedelta
-import pytz
-
+import pytzF
 # =========================
 # ENV
 # =========================
@@ -42,8 +40,12 @@ def get_earnings(from_date, to_date):
     }
 
     try:
-        r = requests.get(url, params=params)
-        data = r.json()
+r = requests.get(url, params=params)
+
+print("FMP STATUS:", r.status_code)
+print("FMP RESPONSE:", r.text[:300])
+
+data = r.json()
 
         results = []
 
