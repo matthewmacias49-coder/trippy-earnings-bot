@@ -81,11 +81,11 @@ async def on_ready():
     try:
         if not today_task.is_running():
             today_task.start()
-            print("DAILY TASK STARTED")
+print("today_task running:", today_task.is_running())
 
         if not weekly_task.is_running():
             weekly_task.start()
-            print("WEEKLY TASK STARTED")
+print("weekly_task running:", weekly_task.is_running())
 
     except Exception as e:
         print("TASK START ERROR:", e)
