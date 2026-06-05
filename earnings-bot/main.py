@@ -31,6 +31,39 @@ last_weekly_run = None
 # =========================
 # FMP EARNINGS API
 # =========================
+TIER_1 = [
+    "AAPL", "MSFT", "NVDA", "AMZN", "META",
+    "GOOGL", "TSLA", "AMD", "AVGO", "NFLX",
+    "PLTR", "HOOD", "INTC", "DELL", "ARM",
+    "SMCI", "COIN", "UBER", "CRM", "ORCL",
+    "QCOM", "SNOW", "SHOP", "RBLX", "PYPL",
+    "JPM", "BAC", "GS", "WMT", "COST",
+    "LLY", "UNH", "XOM", "CVX", "COP"
+]
+
+TIER_2 = [
+    "ADBE", "AMAT", "MU", "PANW", "CRWD",
+    "ANET", "MRVL", "SNPS", "KLAC", "LRCX",
+    "ADI", "MCHP", "NXPI", "ON", "ASML",
+    "TTD", "DDOG", "ZS", "NET", "MDB",
+    "TEAM", "HUBS", "DOCU", "OKTA",
+    "ABNB", "BKNG", "EXPE",
+    "DIS", "CMCSA", "PARA", "WBD",
+    "KO", "PEP", "MCD", "SBUX", "NKE",
+    "HD", "LOW", "TGT",
+    "CAT", "DE", "GE", "RTX",
+    "LMT", "BA",
+    "UPS", "FDX",
+    "PFE", "MRK", "ABBV", "JNJ",
+    "ISRG", "TMO", "DHR",
+    "SCHW", "BLK", "MS", "C", "AXP",
+    "SPGI", "CME",
+    "FCX", "NEM", "SLB", "EOG", "MPC"
+]
+
+WATCHLIST = set(TIER_1 + TIER_2)
+
+
 def get_earnings(from_date, to_date):
     url = "https://financialmodelingprep.com/api/v3/earning_calendar"
 
@@ -42,27 +75,28 @@ def get_earnings(from_date, to_date):
 
     try:
         r = requests.get(url, params=params)
-
-        print("FMP STATUS:", r.status_code)
-        print("FMP RESPONSE:", r.text[:300])
-
         data = r.json()
 
-        results = []
+        tier1 = []
+        tier2 = []
 
         for item in data:
             symbol = item.get("symbol")
-            date = item.get("date")
 
-            if symbol and date:
-                results.append(f"🔥 {symbol} — {date}")
+            if symbol in TIER_1:
+                tier1.append(symbol)
 
-        return results
+            elif symbol in TIER_2:
+                tier2.append(symbol)
+
+        tier1 = sorted(list(set(tier1)))
+        tier2 = sorted(list(set(tier2)))
+
+        return tier1, tier2
 
     except Exception as e:
         print("FMP ERROR:", e)
-        return []
-
+        return [], []
 # =========================
 # READY (FIXED + SAFE)
 # =========================
