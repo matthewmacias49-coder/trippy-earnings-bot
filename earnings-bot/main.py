@@ -40,12 +40,12 @@ def get_earnings(from_date, to_date):
     }
 
     try:
-r = requests.get(url, params=params)
+        r = requests.get(url, params=params)
 
-print("FMP STATUS:", r.status_code)
-print("FMP RESPONSE:", r.text[:300])
+        print("FMP STATUS:", r.status_code)
+        print("FMP RESPONSE:", r.text[:300])
 
-data = r.json()
+        data = r.json()
 
         results = []
 
@@ -61,7 +61,6 @@ data = r.json()
     except Exception as e:
         print("FMP ERROR:", e)
         return []
-
 
 # =========================
 # READY (FIXED + SAFE)
