@@ -6,9 +6,10 @@ print("FMP EXISTS:", os.getenv("FMP_API_KEY") is not None)
 
 import discord
 from discord.ext import tasks
+import os
 import requests
 from datetime import datetime, timedelta
-import pytzF
+import pytz
 # =========================
 # ENV
 # =========================
