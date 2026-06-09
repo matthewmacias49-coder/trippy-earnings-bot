@@ -164,12 +164,23 @@ async def today_task():
         try:
             channel = await client.fetch_channel(CHANNEL_ID)
 
-            earnings = get_earnings(day, day)
+tier1, tier2 = get_earnings(day, day)
 
-            msg = "📊 **TODAY EARNINGS**\n\n"
-            msg += "\n".join(earnings) if earnings else "No earnings today."
+msg = "📊 **TODAY'S EARNINGS**\n\n"
 
-            await channel.send(msg)
+if tier1:
+    msg += "🔥 **Tier 1**\n"
+    msg += "\n".join(f"• {ticker}" for ticker in tier1)
+    msg += "\n\n"
+
+if tier2:
+    msg += "📈 **Tier 2**\n"
+    msg += "\n".join(f"• {ticker}" for ticker in tier2)
+
+if not tier1 and not tier2:
+    msg += "No watchlist earnings today."
+
+await channel.send(msg)
 
             print("DAILY SENT")
             last_daily_run = day
