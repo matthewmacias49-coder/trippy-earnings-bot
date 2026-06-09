@@ -97,11 +97,11 @@ def send_discord(headline, summary, url, source):
     category = get_category(headline + " " + summary)
 
     embed = {
-        "title": "🚨 Trippy Alerts News",
-      "description": (
-    f"📰 **{headline}**\n\n"
-    f"📝 {summary[:200]}..."
-),
+        "title": "🚨 Breaking Market News",
+        "description": (
+            f"**{headline}**\n\n"
+            f"📝 {summary[:200]}..."
+        ),
         "url": url,
         "color": 16753920,
         "fields": [
@@ -117,7 +117,7 @@ def send_discord(headline, summary, url, source):
             }
         ],
         "footer": {
-            "text": f"Trippy Alerts • {datetime.now().strftime('%m/%d/%Y %I:%M %p')}"
+            "text": f"Trippy Alerts • {datetime.now().strftime('%I:%M %p')}"
         }
     }
 
