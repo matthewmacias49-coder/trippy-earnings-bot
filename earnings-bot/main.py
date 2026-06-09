@@ -135,15 +135,6 @@ def get_earnings(from_date, to_date):
 @client.event
 async def on_ready():
     print("BOT READY TRIGGERED:", client.user)
-
-    try:
-        channel = await client.fetch_channel(CHANNEL_ID)
-        await channel.send("🟢 Trippy Alerts online")
-        print("ONLINE MESSAGE SENT")
-
-    except Exception as e:
-        print("ON_READY ERROR:", e)
-
     try:
         if not today_task.is_running():
             today_task.start()
