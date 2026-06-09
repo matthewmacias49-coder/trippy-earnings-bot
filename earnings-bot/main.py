@@ -65,7 +65,7 @@ WATCHLIST = set(TIER_1 + TIER_2)
 
 
 def get_earnings(from_date, to_date):
-    url = "https://financialmodelingprep.com/api/v3/earning_calendar"
+    url = "https://financialmodelingprep.com/stable/earnings-calendar"
 
     params = {
         "from": from_date,
