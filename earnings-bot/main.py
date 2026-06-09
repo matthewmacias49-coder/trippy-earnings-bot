@@ -280,7 +280,6 @@ NEWS_KEYWORDS = [
 ]
 
 @tasks.loop(minutes=2)
-@tasks.loop(minutes=5)
 async def news_task():
 
     try:
