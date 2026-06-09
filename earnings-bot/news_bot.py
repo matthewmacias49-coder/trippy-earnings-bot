@@ -188,7 +188,7 @@ print("🚨 Trippy Alerts News Bot Started")
 while True:
     try:
         check_news()
-        time.sleep(300)  # 5 minutes
+    time.sleep(120)
 
     except Exception as e:
         print(f"ERROR: {e}")
