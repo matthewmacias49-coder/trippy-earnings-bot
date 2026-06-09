@@ -98,7 +98,10 @@ def send_discord(headline, summary, url, source):
 
     embed = {
         "title": "🚨 Trippy Alerts News",
-        "description": f"**{headline}**\n\n{summary[:500]}",
+      "description": (
+    f"📰 **{headline}**\n\n"
+    f"📝 {summary[:200]}..."
+),
         "url": url,
         "color": 16753920,
         "fields": [
