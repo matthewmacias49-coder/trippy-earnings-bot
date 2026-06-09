@@ -291,20 +291,20 @@ async def news_task():
         r = requests.get(url, timeout=20)
 
         if r.status_code != 200:
-            print("NEWS API ERROR:", r.status_code)
-            return
+        print("NEWS API ERROR:", r.status_code)
+        return
 
-articles = r.json()
+        articles = r.json()
 
-# First startup: mark all current news as seen
-if len(posted_news) == 0:
-    for article in articles:
+        # First startup: mark all current news as seen
+        if len(posted_news) == 0:
+        for article in articles:
         posted_news.add(str(article.get("id")))
-    print("NEWS CACHE INITIALIZED")
-    return
+        print("NEWS CACHE INITIALIZED")
+        return
 
-# Only look at newest few articles
-articles = articles[:5]
+        # Only look at newest few articles
+        articles = articles[:5]
 
         channel = await client.fetch_channel(NEWS_CHANNEL_ID)
 
