@@ -307,7 +307,7 @@ async def news_task():
             return
 
         # Only check newest 5 articles
-    articles = articles[:15]
+        articles = articles[:15]
 
         channel = await client.fetch_channel(NEWS_CHANNEL_ID)
 
