@@ -317,8 +317,9 @@ articles = articles[:5]
 
             headline = article.get("headline", "")
             summary = article.get("summary", "")
-            source = article.get("source", "Unknown")
-            article_url = article.get("url", "")
+source = article.get("source", "Unknown")
+article_url = article.get("url", "")
+image_url = article.get("image", "")
             image_url = article.get("image", "")
             text = f"{headline} {summary}".lower()
 
@@ -350,7 +351,8 @@ articles = articles[:5]
                 value=source,
                 inline=True
             )
-
+if image_url:
+    embed.set_thumbnail(url=image_url)
 await channel.send(embed=embed)
 
 posted_news.add(article_id)
