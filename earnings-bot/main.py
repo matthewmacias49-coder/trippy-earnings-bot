@@ -263,20 +263,43 @@ NEWS_KEYWORDS = [
     "inflation",
     "cpi",
     "ppi",
+    "jobs report",
+    "nonfarm payrolls",
+    "consumer spending",
     "recession",
-    "economy",
-    "china",
-    "taiwan",
-    "war",
-    "tariff",
-    "sanctions",
-    "opec",
-    "oil",
+
+    "earnings",
+    "guidance",
+    "revenue",
+    "profit",
+    "forecast",
+
     "ipo",
     "merger",
     "acquisition",
     "buyout",
-    "bankruptcy"
+
+    "analyst",
+    "upgrade",
+    "downgrade",
+    "price target",
+
+    "sec",
+    "doj",
+    "lawsuit",
+    "antitrust",
+
+    "artificial intelligence",
+    "ai",
+    "semiconductor",
+    "chip",
+
+    "oil",
+    "opec",
+
+    "bitcoin",
+    "crypto",
+    "ethereum"
 ]
 
 @tasks.loop(minutes=2)
