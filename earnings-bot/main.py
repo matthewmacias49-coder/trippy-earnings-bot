@@ -294,7 +294,17 @@ async def news_task():
             print("NEWS API ERROR:", r.status_code)
             return
 
-        articles = r.json()
+articles = r.json()
+
+# First startup: mark all current news as seen
+if len(posted_news) == 0:
+    for article in articles:
+        posted_news.add(str(article.get("id")))
+    print("NEWS CACHE INITIALIZED")
+    return
+
+# Only look at newest few articles
+articles = articles[:5]
 
         channel = await client.fetch_channel(NEWS_CHANNEL_ID)
 
@@ -341,11 +351,13 @@ async def news_task():
                 inline=True
             )
 
-            await channel.send(embed=embed)
+await channel.send(embed=embed)
 
-            posted_news.add(article_id)
+posted_news.add(article_id)
 
-            print("NEWS POSTED:", headline)
+print("NEWS POSTED:", headline)
+
+break
 
     except Exception as e:
         print("NEWS TASK ERROR:", e)
