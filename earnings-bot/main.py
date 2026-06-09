@@ -215,21 +215,21 @@ async def weekly_task():
             start = now.date().isoformat()
             end = (now.date() + timedelta(days=7)).isoformat()
 
-tier1, tier2 = get_earnings(start, end)
+            tier1, tier2 = get_earnings(start, end)
 
-msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\n"
+            msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\n"
 
-if tier1:
-    msg += "🔥 **Tier 1**\n"
-    msg += "\n".join(f"• {ticker}" for ticker in tier1)
-    msg += "\n\n"
+            if tier1:
+                msg += "🔥 **Tier 1**\n"
+                msg += "\n".join(f"• {ticker}" for ticker in tier1)
+                msg += "\n\n"
 
-if tier2:
-    msg += "📈 **Tier 2**\n"
-    msg += "\n".join(f"• {ticker}" for ticker in tier2)
+            if tier2:
+                msg += "📈 **Tier 2**\n"
+                msg += "\n".join(f"• {ticker}" for ticker in tier2)
 
-if not tier1 and not tier2:
-    msg += "No watchlist earnings next week."
+            if not tier1 and not tier2:
+                msg += "No watchlist earnings next week."
 
             await channel.send(msg)
 
@@ -238,7 +238,6 @@ if not tier1 and not tier2:
 
         except Exception as e:
             print("WEEKLY TASK ERROR:", e)
-
 
 # =========================
 # RUN BOT
