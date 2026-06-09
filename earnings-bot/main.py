@@ -17,7 +17,10 @@ TOKEN = os.getenv("BOT_TOKEN")
 FMP_API_KEY = os.getenv("FMP_API_KEY")
 
 CHANNEL_ID = 1511454316588826754
+NEWS_CHANNEL_ID = 1512534078300094626
+FINNHUB_API_KEY = os.getenv("FINNHUB_API_KEY")
 
+posted_news = set()
 intents = discord.Intents.default()
 client = discord.Client(intents=intents)
 
@@ -132,7 +135,6 @@ def get_earnings(from_date, to_date):
 # READY (FIXED + SAFE)
 # =========================
 @client.event
-@client.event
 async def on_ready():
     print("BOT READY TRIGGERED:", client.user)
     try:
@@ -147,7 +149,9 @@ async def on_ready():
             print("WEEKLY TASK STARTED")
 
         print("weekly_task running:", weekly_task.is_running())
-
+if not news_task.is_running():
+    news_task.start()
+    print("NEWS TASK STARTED")
     except Exception as e:
         print("TASK START ERROR:", e)
 
@@ -247,7 +251,104 @@ async def weekly_task():
 
         except Exception as e:
             print("WEEKLY TASK ERROR:", e)
+# =========================
+# BREAKING NEWS
+# =========================
 
+NEWS_KEYWORDS = [
+    "federal reserve",
+    "fed",
+    "interest rate",
+    "inflation",
+    "cpi",
+    "ppi",
+    "recession",
+    "economy",
+    "china",
+    "taiwan",
+    "war",
+    "tariff",
+    "sanctions",
+    "opec",
+    "oil",
+    "ipo",
+    "merger",
+    "acquisition",
+    "buyout",
+    "bankruptcy"
+]
+
+@tasks.loop(minutes=2)
+async def news_task():
+
+    try:
+        url = (
+            f"https://finnhub.io/api/v1/news"
+            f"?category=general"
+            f"&token={FINNHUB_API_KEY}"
+        )
+
+        r = requests.get(url, timeout=20)
+
+        if r.status_code != 200:
+            print("NEWS API ERROR:", r.status_code)
+            return
+
+        articles = r.json()
+
+        channel = await client.fetch_channel(NEWS_CHANNEL_ID)
+
+        for article in articles:
+
+            article_id = str(article.get("id"))
+
+            if article_id in posted_news:
+                continue
+
+            headline = article.get("headline", "")
+            summary = article.get("summary", "")
+            source = article.get("source", "Unknown")
+            article_url = article.get("url", "")
+
+            text = f"{headline} {summary}".lower()
+
+            keyword_match = any(
+                word in text
+                for word in NEWS_KEYWORDS
+            )
+
+            watchlist_match = any(
+                ticker.lower() in text
+                for ticker in WATCHLIST
+            )
+
+            if not keyword_match and not watchlist_match:
+                continue
+
+            embed = discord.Embed(
+                title="🚨 Breaking Market News",
+                description=(
+                    f"**{headline}**\n\n"
+                    f"📝 {summary[:200]}..."
+                ),
+                url=article_url,
+                color=0xF39C12
+            )
+
+            embed.add_field(
+                name="Source",
+                value=source,
+                inline=True
+            )
+
+            await channel.send(embed=embed)
+
+            posted_news.add(article_id)
+
+            print("NEWS POSTED:", headline)
+
+    except Exception as e:
+        print("NEWS TASK ERROR:", e)
 # =========================
 # RUN BOT
 # =========================
