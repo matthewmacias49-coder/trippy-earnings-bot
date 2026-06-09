@@ -135,23 +135,23 @@ def get_earnings(from_date, to_date):
 # READY (FIXED + SAFE)
 # =========================
 @client.event
+@client.event
 async def on_ready():
     print("BOT READY TRIGGERED:", client.user)
+
     try:
         if not today_task.is_running():
             today_task.start()
             print("DAILY TASK STARTED")
 
-        print("today_task running:", today_task.is_running())
-
         if not weekly_task.is_running():
             weekly_task.start()
             print("WEEKLY TASK STARTED")
 
-        print("weekly_task running:", weekly_task.is_running())
-if not news_task.is_running():
-    news_task.start()
-    print("NEWS TASK STARTED")
+        if not news_task.is_running():
+            news_task.start()
+            print("NEWS TASK STARTED")
+
     except Exception as e:
         print("TASK START ERROR:", e)
 
