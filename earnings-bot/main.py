@@ -136,6 +136,7 @@ def get_earnings(from_date, to_date):
 # =========================
 @client.event
 @client.event
+@client.event
 async def on_ready():
     print("BOT READY TRIGGERED:", client.user)
 
@@ -279,6 +280,7 @@ NEWS_KEYWORDS = [
 ]
 
 @tasks.loop(minutes=2)
+@tasks.loop(minutes=5)
 async def news_task():
 
     try:
@@ -291,19 +293,21 @@ async def news_task():
         r = requests.get(url, timeout=20)
 
         if r.status_code != 200:
-        print("NEWS API ERROR:", r.status_code)
-        return
+            print("NEWS API ERROR:", r.status_code)
+            return
 
         articles = r.json()
 
-        # First startup: mark all current news as seen
+        # On startup, mark existing news as seen
         if len(posted_news) == 0:
-        for article in articles:
-        posted_news.add(str(article.get("id")))
-        print("NEWS CACHE INITIALIZED")
-        return
+            for article in articles:
+                article_id = str(article.get("id"))
+                posted_news.add(article_id)
 
-        # Only look at newest few articles
+            print("NEWS CACHE INITIALIZED")
+            return
+
+        # Only check newest 5 articles
         articles = articles[:5]
 
         channel = await client.fetch_channel(NEWS_CHANNEL_ID)
@@ -317,10 +321,10 @@ async def news_task():
 
             headline = article.get("headline", "")
             summary = article.get("summary", "")
-source = article.get("source", "Unknown")
-article_url = article.get("url", "")
-image_url = article.get("image", "")
+            source = article.get("source", "Unknown")
+            article_url = article.get("url", "")
             image_url = article.get("image", "")
+
             text = f"{headline} {summary}".lower()
 
             keyword_match = any(
@@ -334,14 +338,12 @@ image_url = article.get("image", "")
             )
 
             if not keyword_match and not watchlist_match:
+                posted_news.add(article_id)
                 continue
 
             embed = discord.Embed(
-                title="🚨 Breaking Market News",
-                description=(
-                    f"**{headline}**\n\n"
-                    f"📝 {summary[:200]}..."
-                ),
+                title=f"🚨 {headline}",
+                description=f"📝 {summary[:200]}...",
                 url=article_url,
                 color=0xF39C12
             )
@@ -351,15 +353,17 @@ image_url = article.get("image", "")
                 value=source,
                 inline=True
             )
-if image_url:
-    embed.set_thumbnail(url=image_url)
-await channel.send(embed=embed)
 
-posted_news.add(article_id)
+            if image_url:
+                embed.set_image(url=image_url)
 
-print("NEWS POSTED:", headline)
+            await channel.send(embed=embed)
 
-break
+            posted_news.add(article_id)
+
+            print("NEWS POSTED:", headline)
+
+            break
 
     except Exception as e:
         print("NEWS TASK ERROR:", e)
