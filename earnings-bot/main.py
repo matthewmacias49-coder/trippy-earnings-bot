@@ -74,13 +74,26 @@ def get_earnings(from_date, to_date):
     }
 
     try:
-        r = requests.get(url, params=params)
+        r = requests.get(url, params=params, timeout=15)
+
+        print("FMP STATUS:", r.status_code)
+        print("FMP RESPONSE:", r.text[:500])
+
         data = r.json()
+
+        # FMP sometimes returns an error dict/string instead of a list
+        if not isinstance(data, list):
+            print("FMP ERROR RESPONSE:", data)
+            return [], []
 
         tier1 = []
         tier2 = []
 
         for item in data:
+
+            if not isinstance(item, dict):
+                continue
+
             symbol = item.get("symbol")
 
             if symbol in TIER_1:
