@@ -319,7 +319,7 @@ articles = articles[:5]
             summary = article.get("summary", "")
             source = article.get("source", "Unknown")
             article_url = article.get("url", "")
-
+            image_url = article.get("image", "")
             text = f"{headline} {summary}".lower()
 
             keyword_match = any(
