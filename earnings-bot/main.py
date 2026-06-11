@@ -425,41 +425,43 @@ async def news_task():
             if not keyword_match and not watchlist_match:
                 posted_news.add(article_id)
                 continue
-            if not keyword_match and not watchlist_match:
-                posted_news.add(article_id)
-                continue
+
+            description = summary.strip()
+
+            if not description:
+                description = "Market-moving news affecting stocks, earnings, economic data, or major macro events."
+
+            description = description.replace("\n", " ")
+
+            if len(description) > 300:
+                description = description[:300] + "..."
+
+            impact = ""
+
+            if any(word in text for word in ["iran", "oil", "opec", "crude", "strait of hormuz"]):
+                impact = "⛽ Potential impact: Oil & Energy"
+
+            elif any(word in text for word in ["fed", "inflation", "cpi", "ppi", "pce", "interest rate"]):
+                impact = "📈 Potential impact: SPY, QQQ, Nasdaq"
+
+            elif "earnings" in text:
+                impact = "💰 Potential impact: Earnings Movers"
+
+            elif any(word in text for word in ["tariff", "sanctions"]):
+                impact = "🌎 Potential impact: Broad Market"
+
+            if impact:
+                description += f"\n\n{impact}"
 
             embed = discord.Embed(
-                title=f"🚨 {headline}",
-                description=f"📝 {summary[:200]}...",
+                title=headline,
+                description=description,
                 url=article_url,
                 color=0xF39C12
             )
 
-# Better summary
-description = summary.strip()
-
-if not description:
-    description = "Market-moving news affecting stocks, earnings, economic data, or major macro events."
-
-description = description.replace("\n", " ")
-
-if len(description) > 300:
-    description = description[:300] + "..."
-embed = discord.Embed(
-    title=headline,
-    description=description,
-    url=article_url,
-    color=0xF39C12
-)
-
-embed.set_author(name="🚨 Market Alert")
-embed.set_footer(text=source)
-# Small footer instead of giant source field
-embed.set_footer(text=source)
-
-if image_url:
-    embed.set_image(url=image_url)
+            embed.set_author(name="🚨 Market Alert")
+            embed.set_footer(text=source)
 
             if image_url:
                 embed.set_image(url=image_url)
@@ -471,8 +473,6 @@ if image_url:
             print("NEWS POSTED:", headline)
 
             break
-
-    except Exception as e:
         print("NEWS TASK ERROR:", e)
 # =========================
 # RUN BOT
