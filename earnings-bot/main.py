@@ -240,26 +240,6 @@ async def today_task():
         except Exception as e:
             print("DAILY TASK ERROR:", e)
 
-    start = now.date().isoformat()
-    end = (now.date() + timedelta(days=1)).isoformat()
-
-    tier1, tier2 = get_earnings(start, end)
-
-    msg = "📊 **TODAY'S EARNINGS**\n\n"
-
-    if tier1:
-        msg += "🔥 **Tier 1**\n"
-        msg += "\n".join(f"• {ticker}" for ticker in tier1)
-        msg += "\n\n"
-
-    if tier2:
-        msg += "📈 **Tier 2**\n"
-        msg += "\n".join(f"• {ticker}" for ticker in tier2)
-
-    await channel.send(msg)
-
-except Exception as e:
-    print("DAILY TASK ERROR:", e)
 
 # =========================
 # WEEKLY SUNDAY 5PM PST
