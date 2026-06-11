@@ -195,7 +195,6 @@ async def on_ready():
 # DAILY 6AM PST MON-FRI
 # =========================
 @tasks.loop(minutes=1)
-@tasks.loop(minutes=1)
 async def today_task():
     global last_daily_run
 
@@ -266,50 +265,57 @@ except Exception as e:
 # WEEKLY SUNDAY 5PM PST
 # =========================
 @tasks.loop(minutes=1)
+@tasks.loop(minutes=1)
 async def weekly_task():
     global last_weekly_run
 
     now = datetime.now(PST)
 
+    # Sunday only
     if now.weekday() != 6:
         return
 
-    if now.hour >= 17:
+    # 5PM PST
+    if now.hour < 17:
+        return
 
-        week_id = now.strftime("%Y-%U")
+    week_id = now.strftime("%Y-%U")
 
-        if last_weekly_run == week_id:
-            return
+    if last_weekly_run == week_id:
+        return
 
-        try:
-            channel = await client.fetch_channel(CHANNEL_ID)
+    try:
+        channel = await client.fetch_channel(CHANNEL_ID)
 
-            start = now.date().isoformat()
-            end = (now.date() + timedelta(days=7)).isoformat()
+        start = now.date().isoformat()
+        end = (now.date() + timedelta(days=7)).isoformat()
 
-            tier1, tier2 = get_earnings(start, end)
+        tier1, tier2 = get_earnings(start, end)
 
-            msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\n"
+        msg = "📅 **WEEKLY EARNINGS CALENDAR**\n\n"
 
-            if tier1:
-                msg += "🔥 **Tier 1**\n"
-                msg += "\n".join(f"• {ticker}" for ticker in tier1)
-                msg += "\n\n"
+        if tier1:
+            msg += "🔥 **Tier 1**\n"
+            msg += "\n".join(f"• {ticker}" for ticker in tier1)
+            msg += "\n\n"
 
-            if tier2:
-                msg += "📈 **Tier 2**\n"
-                msg += "\n".join(f"• {ticker}" for ticker in tier2)
+        if tier2:
+            msg += "📈 **Tier 2**\n"
+            msg += "\n".join(f"• {ticker}" for ticker in tier2)
 
-            if not tier1 and not tier2:
-                msg += "No watchlist earnings next week."
+        if not tier1 and not tier2:
+            msg += "No watchlist earnings next week."
 
-            await channel.send(msg)
+        await channel.send(msg)
 
-            print("WEEKLY SENT")
-            last_weekly_run = week_id
+        print("WEEKLY SENT")
+        print("TIER1:", tier1)
+        print("TIER2:", tier2)
 
-        except Exception as e:
-            print("WEEKLY TASK ERROR:", e)
+        last_weekly_run = week_id
+
+    except Exception as e:
+        print("WEEKLY TASK ERROR:", e)
 # =========================
 # BREAKING NEWS
 # =========================
