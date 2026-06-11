@@ -245,7 +245,6 @@ async def today_task():
 # WEEKLY SUNDAY 5PM PST
 # =========================
 @tasks.loop(minutes=1)
-@tasks.loop(minutes=1)
 async def weekly_task():
     global last_weekly_run
 
