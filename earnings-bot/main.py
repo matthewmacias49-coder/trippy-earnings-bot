@@ -361,7 +361,6 @@ BANNED_WORDS = [
 ]
 
 @tasks.loop(minutes=2)
-@tasks.loop(minutes=2)
 async def news_task():
 
     try:
