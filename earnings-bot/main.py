@@ -225,9 +225,8 @@ async def today_task():
         try:
             channel = await client.fetch_channel(CHANNEL_ID)
 
-            start = (now.date() - timedelta(days=1)).isoformat()
+            start = now.date().isoformat()
             end = now.date().isoformat()
-
             tier1, tier2 = get_earnings(start, end)
 
             msg = "📊 **TODAY'S EARNINGS**\n\n"
