@@ -130,43 +130,51 @@ def get_earnings(from_date, to_date):
         "apikey": FMP_API_KEY
     }
 
-    try:
-        r = requests.get(url, params=params, timeout=15)
+try:
+    r = requests.get(url, params=params, timeout=15)
 
-        print("FMP STATUS:", r.status_code)
-        print("FMP RESPONSE:", r.text[:500])
+    print("FMP STATUS:", r.status_code)
+    print("FMP RESPONSE:", r.text[:500])
 
-        data = r.json()
+    data = r.json()
 
-        # FMP sometimes returns an error dict/string instead of a list
-        if not isinstance(data, list):
-            print("FMP ERROR RESPONSE:", data)
-            return [], []
-
-        tier1 = []
-        tier2 = []
-
-        for item in data:
-
-            if not isinstance(item, dict):
-                continue
-
-            symbol = item.get("symbol")
-
-            if symbol in TIER_1:
-                tier1.append(symbol)
-
-            elif symbol in TIER_2:
-                tier2.append(symbol)
-
-        tier1 = sorted(list(set(tier1)))
-        tier2 = sorted(list(set(tier2)))
-
-        return tier1, tier2
-
-    except Exception as e:
-        print("FMP ERROR:", e)
+    if not isinstance(data, list):
+        print("FMP ERROR RESPONSE:", data)
         return [], []
+
+    print("TOTAL EARNINGS RETURNED:", len(data))
+
+    tier1 = []
+    tier2 = []
+
+    for item in data:
+
+        if not isinstance(item, dict):
+            continue
+
+        symbol = item.get("symbol")
+
+        print("EARNINGS FOUND:", symbol)
+
+        if symbol in TIER_1:
+            print("MATCHED TIER1:", symbol)
+            tier1.append(symbol)
+
+        elif symbol in TIER_2:
+            print("MATCHED TIER2:", symbol)
+            tier2.append(symbol)
+
+    tier1 = sorted(list(set(tier1)))
+    tier2 = sorted(list(set(tier2)))
+
+    print("FINAL TIER1:", tier1)
+    print("FINAL TIER2:", tier2)
+
+    return tier1, tier2
+
+except Exception as e:
+    print("FMP ERROR:", e)
+    return [], []
 # =========================
 # READY (FIXED + SAFE)
 # =========================
