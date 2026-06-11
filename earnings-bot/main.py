@@ -35,51 +35,87 @@ last_weekly_run = None
 # FMP EARNINGS API
 # =========================
 TIER_1 = [
-    "AAPL", "MSFT", "NVDA", "AMZN", "META",
-    "GOOGL", "TSLA", "AMD", "AVGO", "NFLX",
-    "PLTR", "HOOD", "INTC", "DELL", "ARM",
-    "SMCI", "COIN", "UBER", "CRM", "ORCL",
-    "QCOM", "SNOW", "SHOP", "RBLX", "PYPL",
-    "JPM", "BAC", "GS", "WMT", "COST",
-    "LLY", "UNH", "XOM", "CVX", "COP"
+    "AAPL","MSFT","NVDA","AMZN","META",
+    "GOOGL","TSLA","AMD","AVGO","NFLX",
+    "PLTR","HOOD","INTC","DELL","ARM",
+    "SMCI","COIN","UBER","CRM","ORCL",
+    "QCOM","SNOW","SHOP","RBLX","PYPL",
+    "JPM","BAC","GS","WMT","COST",
+    "LLY","UNH","XOM","CVX","COP",
+
+    "ADBE","PANW","CRWD","MU","AMAT",
+    "LRCX","MRVL","ABNB","BKNG","ISRG",
+    "CAT","RTX","MCD","SBUX","ANET",
+    "SNPS","CDNS","MSTR","DASH"
 ]
 
 TIER_2 = [
-   "TJX","ROST","BURL","ULTA","DG","DLTR","FIVE",
-"BBY","GME","KSS","M","JWN","GPS","AEO","ANF",
-"WING","CMG","YUM","DPZ","QSR","SHAK","CAVA",
-"DRI","TXRH","CAKE","BJRI","DENN","JACK","PLAY",
-"KR","ACI","SFM","CAG","GIS","KHC","CPB","HRL",
-"MKC","MDLZ","HSY","STZ",
-"VRTX","REGN","BIIB","BMY","GILD","AMGN","CVS",
-"ELV","HUM","CI","DGX","LH","HCA","UHS",
-"ZBH","SYK","BSX","EW","ALGN",
-"APP","APPS","IOT","SOUN","AI","BBAI","CFLT",
-"ESTC","GTLB","PATH","FSLY","AKAM","UPST",
-"AFRM","SOFI","LC","RKLB","ASTS","LUNR",
-"IONQ","RGTI","QBTS","TEM","HIMS",
-"S","TENB","CYBR","RPD","VRNS","FTNT","SAIL",
-"MPWR","ENTG","ONTO","ALAB","FORM","WOLF",
-"COHR","IPGP","CAMT","ACLS","AEHR",
-"WDAY","NOW","INTU","CDNS","TTWO","EA",
-"U","APPF","PAYC","BILL","TOST","MNDY",
-"DUOL","CELH","ALLY","COF","DFS","RF",
-"HBAN","FITB","KEY","PNC","USB","TROW",
-"BEN","AMP","URI","FAST","GWW","PCAR",
-"PWR","ETN","HWM","IR","JCI","ROK",
-"PH","EMR","OXY","DVN","FANG","APA",
-"BKR","HAL","VLO","PSX","KMI","WMB",
-"UAL","DAL","AAL","LUV","ALK","SAVE",
-"MAR","HLT","RCL","CCL","NCLH",
-"TMUS","VZ","T","CHTR","DISH","SPOT",
-"ROKU","SNAP","PINS",
-"RIVN","LCID","NIO","XPEV","LI",
-"F","GM","STLA",
-"CROX","ONON","DECK","SKX","LULU",
-"ELF","COTY","RL",
-"JOBY","ACHR","PLUG","BE","RUN","SEDG",
-"ENPH","CHPT","QS","OPEN","RDFN",
-"EXAS","RXRX","CRSP","NTLA"
+    "TJX","ROST","BURL","ULTA","DG","DLTR","FIVE",
+    "BBY","GME","KSS","M","JWN","GPS","AEO","ANF",
+
+    "WING","CMG","YUM","DPZ","QSR","SHAK","CAVA",
+    "DRI","TXRH","CAKE","BJRI","DENN","JACK","PLAY",
+    "MCD","SBUX",
+
+    "KR","ACI","SFM","CAG","GIS","KHC","CPB","HRL",
+    "MKC","MDLZ","HSY","STZ",
+
+    "VRTX","REGN","BIIB","BMY","GILD","AMGN","CVS",
+    "ELV","HUM","CI","DGX","LH","HCA","UHS",
+    "ZBH","SYK","BSX","EW","ALGN",
+    "MRK","ABBV","NVO","ISRG",
+
+    "APP","APPS","IOT","SOUN","AI","BBAI","CFLT",
+    "ESTC","GTLB","PATH","FSLY","AKAM","UPST",
+    "AFRM","SOFI","LC","RKLB","ASTS","LUNR",
+    "IONQ","RGTI","QBTS","TEM","HIMS",
+    "NBIS","ANET","SNPS","CDNS","SERV","APLD",
+
+    "S","TENB","CYBR","RPD","VRNS","FTNT","SAIL",
+    "PANW","CRWD","ZS","NET","DDOG","MDB","OKTA",
+
+    "MPWR","ENTG","ONTO","ALAB","FORM","WOLF",
+    "COHR","IPGP","CAMT","ACLS","AEHR",
+    "AMAT","MU","ADI","TXN","MRVL","KLAC","LRCX","MCHP",
+
+    "WDAY","NOW","INTU","CDNS","TTWO","EA",
+    "U","APPF","PAYC","BILL","TOST","MNDY",
+    "DUOL",
+
+    "CELH","ALLY","COF","DFS","RF",
+    "HBAN","FITB","KEY","PNC","USB","TROW",
+    "BEN","AMP","FIS","FI","GPN",
+
+    "URI","FAST","GWW","PCAR",
+    "PWR","ETN","HWM","IR","JCI","ROK",
+    "PH","EMR","CAT",
+
+    "OXY","DVN","FANG","APA",
+    "BKR","HAL","VLO","PSX","KMI","WMB","SLB","MPC",
+
+    "UAL","DAL","AAL","LUV","ALK",
+    "MAR","HLT","RCL","CCL","NCLH",
+    "ABNB","BKNG","EXPE",
+
+    "TMUS","VZ","T","CHTR","DISH","SPOT",
+    "ROKU","SNAP","PINS","DASH","LYFT",
+
+    "RIVN","LCID","NIO","XPEV","LI",
+    "F","GM","STLA",
+
+    "CROX","ONON","DECK","SKX","LULU",
+    "ELF","COTY","RL","NKE",
+
+    "JOBY","ACHR","PLUG","BE","RUN","SEDG",
+    "ENPH","CHPT","QS","OPEN","RDFN",
+
+    "EXAS","RXRX","CRSP","NTLA",
+
+    "LMT","RTX","NOC","GD","BA","AVAV","KTOS",
+
+    "FCX","NEM","AA","CLF","MP",
+
+    "PLD","O","SPG","EQIX","DLR"
 ]
 
 WATCHLIST = set(TIER_1 + TIER_2)
