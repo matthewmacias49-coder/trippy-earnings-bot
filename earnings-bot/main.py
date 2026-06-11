@@ -256,50 +256,108 @@ async def weekly_task():
 # BREAKING NEWS
 # =========================
 
+# =========================
+# MARKET MOVING NEWS FILTER
+# =========================
+
 NEWS_KEYWORDS = [
+
+    # FED / ECONOMY
     "federal reserve",
     "fed",
+    "powell",
     "interest rate",
+    "rate cut",
+    "rate hike",
     "inflation",
     "cpi",
     "ppi",
+    "pce",
+    "nonfarm payroll",
     "jobs report",
-    "nonfarm payrolls",
-    "consumer spending",
+    "unemployment",
+    "gdp",
+    "retail sales",
+    "consumer confidence",
     "recession",
 
+    # GOVERNMENT
+    "tariff",
+    "sanctions",
+    "debt ceiling",
+    "government shutdown",
+
+    # ENERGY
+    "oil",
+    "crude",
+    "opec",
+    "strait of hormuz",
+    "iran",
+    "saudi arabia",
+
+    # COMPANY EVENTS
     "earnings",
     "guidance",
+    "forecast",
     "revenue",
     "profit",
-    "forecast",
-
-    "ipo",
-    "merger",
+    "ceo",
     "acquisition",
-    "buyout",
+    "merger",
+    "buyback",
 
-    "analyst",
-    "upgrade",
-    "downgrade",
+    # MARKET EVENTS
+    "nasdaq",
+    "s&p 500",
+    "dow jones",
+    "spy",
+    "qqq"
+]
+
+BANNED_WORDS = [
+
+    # foreign markets
+    "pakistan",
+    "taiwan dollar",
+    "taiwan currency",
+    "japan inflation",
+    "european markets",
+    "asian markets",
+    "hong kong",
+    "singapore",
+    "indonesia",
+    "philippines",
+    "thailand",
+    "malaysia",
+    "south korea",
+
+    # garbage articles
+    "analyst says",
+    "analysts say",
+    "expert says",
+    "experts say",
+    "opinion",
+    "column",
+    "commentary",
+    "market wrap",
+    "daily roundup",
+    "week ahead",
+    "stocks to buy",
+    "stocks to watch",
     "price target",
 
-    "sec",
-    "doj",
-    "lawsuit",
-    "antitrust",
-
-    "artificial intelligence",
-    "ai",
-    "semiconductor",
-    "chip",
-
-    "oil",
-    "opec",
-
+    # crypto
     "bitcoin",
+    "ethereum",
     "crypto",
-    "ethereum"
+    "cryptocurrency",
+
+    # random stuff
+    "soccer",
+    "nba",
+    "nfl",
+    "entertainment",
+    "celebrity"
 ]
 
 @tasks.loop(minutes=2)
@@ -349,15 +407,20 @@ async def news_task():
 
             text = f"{headline} {summary}".lower()
 
-            keyword_match = any(
-                word in text
-                for word in NEWS_KEYWORDS
-            )
+# Skip garbage news
+if any(word in text for word in BANNED_WORDS):
+    posted_news.add(article_id)
+    continue
 
-            watchlist_match = any(
-                ticker.lower() in text
-                for ticker in WATCHLIST
-            )
+keyword_match = any(
+    word in text
+    for word in NEWS_KEYWORDS
+)
+
+watchlist_match = any(
+    ticker.lower() in text
+    for ticker in WATCHLIST
+)
 
             if not keyword_match and not watchlist_match:
                 posted_news.add(article_id)
@@ -370,11 +433,26 @@ async def news_task():
                 color=0xF39C12
             )
 
-            embed.add_field(
-                name="Source",
-                value=source,
-                inline=True
-            )
+# Better summary
+description = summary.strip()
+
+if not description:
+    description = "Market-moving news affecting stocks, earnings, economic data, or major macro events."
+
+description = description[:350]
+
+embed = discord.Embed(
+    title=f"🚨 {headline}",
+    description=description,
+    url=article_url,
+    color=0xF39C12
+)
+
+# Small footer instead of giant source field
+embed.set_footer(text=source)
+
+if image_url:
+    embed.set_image(url=image_url)
 
             if image_url:
                 embed.set_image(url=image_url)
