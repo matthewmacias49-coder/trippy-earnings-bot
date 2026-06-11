@@ -123,7 +123,10 @@ WATCHLIST = set(TIER_1 + TIER_2)
 
 def get_earnings(from_date, to_date):
 
-    url = "https://financialmodelingprep.com/stable/earnings-calendar"
+    print("FROM:", from_date)
+    print("TO:", to_date)
+
+    url = "https://financialmodelingprep.com/api/v3/earning_calendar"
 
     params = {
         "from": from_date,
@@ -135,23 +138,41 @@ def get_earnings(from_date, to_date):
         r = requests.get(url, params=params, timeout=15)
 
         print("FMP STATUS:", r.status_code)
+        print("FMP RESPONSE:", r.text[:1000])
 
         data = r.json()
-        print("TOTAL EARNINGS RETURNED:", len(data))
+
         if not isinstance(data, list):
+            print("FMP ERROR RESPONSE:", data)
             return [], []
+
+        print("TOTAL EARNINGS RETURNED:", len(data))
 
         tier1 = []
         tier2 = []
 
         for item in data:
+
+            if not isinstance(item, dict):
+                continue
+
             symbol = item.get("symbol")
 
+            print("EARNINGS FOUND:", symbol)
+
             if symbol in TIER_1:
+                print("MATCHED TIER1:", symbol)
                 tier1.append(symbol)
 
             elif symbol in TIER_2:
+                print("MATCHED TIER2:", symbol)
                 tier2.append(symbol)
+
+        tier1 = sorted(list(set(tier1)))
+        tier2 = sorted(list(set(tier2)))
+
+        print("FINAL TIER1:", tier1)
+        print("FINAL TIER2:", tier2)
 
         return tier1, tier2
 
