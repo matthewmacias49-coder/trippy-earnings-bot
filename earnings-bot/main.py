@@ -420,7 +420,7 @@ async def news_task():
             f"&token={FINNHUB_API_KEY}"
         )
 
-        r = requests.get(url, timeout=5)
+        r = requests.get(url, timeout=20)
 
         if r.status_code != 200:
             print("NEWS API ERROR:", r.status_code)
