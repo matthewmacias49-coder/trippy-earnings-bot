@@ -439,15 +439,19 @@ description = summary.strip()
 if not description:
     description = "Market-moving news affecting stocks, earnings, economic data, or major macro events."
 
-description = description[:350]
+description = description.replace("\n", " ")
 
+if len(description) > 300:
+    description = description[:300] + "..."
 embed = discord.Embed(
-    title=f"🚨 {headline}",
+    title=headline,
     description=description,
     url=article_url,
     color=0xF39C12
 )
 
+embed.set_author(name="🚨 Market Alert")
+embed.set_footer(text=source)
 # Small footer instead of giant source field
 embed.set_footer(text=source)
 
