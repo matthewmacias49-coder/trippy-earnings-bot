@@ -134,8 +134,7 @@ def get_earnings(from_date, to_date):
 # =========================
 # READY (FIXED + SAFE)
 # =========================
-@client.event
-@client.event
+
 @client.event
 async def on_ready():
     print("BOT READY TRIGGERED:", client.user)
@@ -476,3 +475,10 @@ async def news_task():
 
     except Exception as e:
         print("NEWS TASK ERROR:", e)
+# =========================
+# START BOT
+# =========================
+
+if __name__ == "__main__":
+    print("🚀 STARTING DISCORD LOGIN...")
+    client.run(TOKEN)
