@@ -361,6 +361,7 @@ BANNED_WORDS = [
 ]
 
 @tasks.loop(minutes=2)
+@tasks.loop(minutes=2)
 async def news_task():
 
     try:
@@ -473,8 +474,6 @@ async def news_task():
             print("NEWS POSTED:", headline)
 
             break
+
+    except Exception as e:
         print("NEWS TASK ERROR:", e)
-# =========================
-# RUN BOT
-# =========================
-client.run(TOKEN)
