@@ -126,7 +126,7 @@ def get_earnings(from_date, to_date):
     print("FROM:", from_date)
     print("TO:", to_date)
 
-    url = "https://financialmodelingprep.com/api/v3/earning_calendar"
+    url = "https://financialmodelingprep.com/stable/earnings-calendar"
 
     params = {
         "from": from_date,
@@ -138,7 +138,7 @@ def get_earnings(from_date, to_date):
         r = requests.get(url, params=params, timeout=15)
 
         print("FMP STATUS:", r.status_code)
-        print("FMP RESPONSE:", r.text[:1000])
+        print("FMP RESPONSE:", r.text[:500])
 
         data = r.json()
 
@@ -147,6 +147,9 @@ def get_earnings(from_date, to_date):
             return [], []
 
         print("TOTAL EARNINGS RETURNED:", len(data))
+
+        for item in data:
+            print("FULL ITEM:", item)
 
         tier1 = []
         tier2 = []
@@ -158,21 +161,14 @@ def get_earnings(from_date, to_date):
 
             symbol = item.get("symbol")
 
-            print("EARNINGS FOUND:", symbol)
-
             if symbol in TIER_1:
-                print("MATCHED TIER1:", symbol)
                 tier1.append(symbol)
 
             elif symbol in TIER_2:
-                print("MATCHED TIER2:", symbol)
                 tier2.append(symbol)
 
         tier1 = sorted(list(set(tier1)))
         tier2 = sorted(list(set(tier2)))
-
-        print("FINAL TIER1:", tier1)
-        print("FINAL TIER2:", tier2)
 
         return tier1, tier2
 
