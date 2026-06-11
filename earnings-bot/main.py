@@ -137,7 +137,7 @@ def get_earnings(from_date, to_date):
         print("FMP STATUS:", r.status_code)
 
         data = r.json()
-
+        print("TOTAL EARNINGS RETURNED:", len(data))
         if not isinstance(data, list):
             return [], []
 
