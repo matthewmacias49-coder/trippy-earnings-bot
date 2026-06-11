@@ -387,7 +387,7 @@ async def news_task():
             print("NEWS CACHE INITIALIZED")
             return
 
-        # Only check newest 5 articles
+        # Only check newest articles
         articles = articles[:15]
 
         channel = await client.fetch_channel(NEWS_CHANNEL_ID)
@@ -407,21 +407,24 @@ async def news_task():
 
             text = f"{headline} {summary}".lower()
 
-# Skip garbage news
-if any(word in text for word in BANNED_WORDS):
-    posted_news.add(article_id)
-    continue
+            # Skip garbage news
+            if any(word in text for word in BANNED_WORDS):
+                posted_news.add(article_id)
+                continue
 
-keyword_match = any(
-    word in text
-    for word in NEWS_KEYWORDS
-)
+            keyword_match = any(
+                word in text
+                for word in NEWS_KEYWORDS
+            )
 
-watchlist_match = any(
-    ticker.lower() in text
-    for ticker in WATCHLIST
-)
+            watchlist_match = any(
+                ticker.lower() in text
+                for ticker in WATCHLIST
+            )
 
+            if not keyword_match and not watchlist_match:
+                posted_news.add(article_id)
+                continue
             if not keyword_match and not watchlist_match:
                 posted_news.add(article_id)
                 continue
