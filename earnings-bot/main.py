@@ -427,7 +427,7 @@ async def news_task():
             return
 
         articles = r.json()
-
+        print("NEWS ARTICLES RECEIVED:", len(articles))
         # On startup, mark existing news as seen
         if len(posted_news) == 0:
             for article in articles:
