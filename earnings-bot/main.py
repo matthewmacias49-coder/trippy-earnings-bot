@@ -442,41 +442,43 @@ async def news_task():
 
         channel = await client.fetch_channel(NEWS_CHANNEL_ID)
 
-        for article in articles:
+for article in articles:
 
-            article_id = str(article.get("id"))
+    article_id = str(article.get("id"))
 
-            if article_id in posted_news:
-                continue
+    if article_id in posted_news:
+        continue
 
-            headline = article.get("headline", "")
-            summary = article.get("summary", "")
-            source = article.get("source", "Unknown")
-            article_url = article.get("url", "")
-            image_url = article.get("image", "")
+    headline = article.get("headline", "")
+    summary = article.get("summary", "")
+    source = article.get("source", "Unknown")
+    article_url = article.get("url", "")
+    image_url = article.get("image", "")
 
-            text = f"{headline} {summary}".lower()
+    text = f"{headline} {summary}".lower()
 
-            # Skip garbage news
-        if any(word in text for word in BANNED_WORDS):
-            print("BANNED:", headline)
-            posted_news.add(article_id)
-            continue
+    if any(word in text for word in BANNED_WORDS):
+        print("BANNED:", headline)
+        posted_news.add(article_id)
+        continue
 
-            keyword_match = any(
-                word in text
-                for word in NEWS_KEYWORDS
-            )
+    keyword_match = any(
+        word in text
+        for word in NEWS_KEYWORDS
+    )
 
-            watchlist_match = any(
-                ticker.lower() in text
-                for ticker in WATCHLIST
-            )
+    watchlist_match = any(
+        ticker.lower() in text
+        for ticker in WATCHLIST
+    )
 
-            if not keyword_match and not watchlist_match:
-                print("FILTERED:", headline)
-                posted_news.add(article_id)
-                continue
+    print("KEYWORD:", keyword_match)
+    print("WATCHLIST:", watchlist_match)
+
+    if not keyword_match and not watchlist_match:
+        print("FILTERED:", headline)
+        posted_news.add(article_id)
+        continue
 
             description = summary.strip()
 
