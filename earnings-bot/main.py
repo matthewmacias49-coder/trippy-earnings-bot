@@ -427,94 +427,40 @@ async def news_task():
             return
 
         articles = r.json()
+
         print("NEWS ARTICLES RECEIVED:", len(articles))
-        # On startup, mark existing news as seen
-        if len(posted_news) == 0:
-            for article in articles:
-                article_id = str(article.get("id"))
-                posted_news.add(article_id)
-
-            print("NEWS CACHE INITIALIZED")
-            return
-
-        # Only check newest articles
-        articles = articles[:15]
 
         channel = await client.fetch_channel(NEWS_CHANNEL_ID)
 
-for article in articles:
+        for article in articles[:15]:
 
-    article_id = str(article.get("id"))
+            article_id = str(article.get("id"))
 
-    if article_id in posted_news:
-        continue
+            if article_id in posted_news:
+                continue
 
-    headline = article.get("headline", "")
-    summary = article.get("summary", "")
-    source = article.get("source", "Unknown")
-    article_url = article.get("url", "")
-    image_url = article.get("image", "")
+            headline = article.get("headline", "")
+            summary = article.get("summary", "")
+            source = article.get("source", "Unknown")
+            article_url = article.get("url", "")
+            image_url = article.get("image", "")
 
-    text = f"{headline} {summary}".lower()
+            text = f"{headline} {summary}".lower()
 
-    if any(word in text for word in BANNED_WORDS):
-        print("BANNED:", headline)
-        posted_news.add(article_id)
-        continue
+            print("CHECKING:", headline)
 
-    keyword_match = any(
-        word in text
-        for word in NEWS_KEYWORDS
-    )
-
-    watchlist_match = any(
-        ticker.lower() in text
-        for ticker in WATCHLIST
-    )
-
-    print("KEYWORD:", keyword_match)
-    print("WATCHLIST:", watchlist_match)
-
-    if not keyword_match and not watchlist_match:
-        print("FILTERED:", headline)
-        posted_news.add(article_id)
-        continue
-
-            description = summary.strip()
-
-            if not description:
-                description = "Market-moving news affecting stocks, earnings, economic data, or major macro events."
-
-            description = description.replace("\n", " ")
-
-            if len(description) > 300:
-                description = description[:300] + "..."
-
-            impact = ""
-
-            if any(word in text for word in ["iran", "oil", "opec", "crude", "strait of hormuz"]):
-                impact = "⛽ Potential impact: Oil & Energy"
-
-            elif any(word in text for word in ["fed", "inflation", "cpi", "ppi", "pce", "interest rate"]):
-                impact = "📈 Potential impact: SPY, QQQ, Nasdaq"
-
-            elif "earnings" in text:
-                impact = "💰 Potential impact: Earnings Movers"
-
-            elif any(word in text for word in ["tariff", "sanctions"]):
-                impact = "🌎 Potential impact: Broad Market"
-
-            if impact:
-                description += f"\n\n{impact}"
+            if any(word in text for word in BANNED_WORDS):
+                print("BANNED:", headline)
+                posted_news.add(article_id)
+                continue
 
             embed = discord.Embed(
                 title=headline,
-                description=description,
+                description=summary[:300] if summary else "Market news update",
                 url=article_url,
                 color=0xF39C12
             )
 
-            embed.set_author(name="🚨 Market Alert")
             embed.set_footer(text=source)
 
             if image_url:
