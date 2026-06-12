@@ -458,9 +458,10 @@ async def news_task():
             text = f"{headline} {summary}".lower()
 
             # Skip garbage news
-            if any(word in text for word in BANNED_WORDS):
-                posted_news.add(article_id)
-                continue
+        if any(word in text for word in BANNED_WORDS):
+            print("BANNED:", headline)
+            posted_news.add(article_id)
+            continue
 
             keyword_match = any(
                 word in text
@@ -473,6 +474,7 @@ async def news_task():
             )
 
             if not keyword_match and not watchlist_match:
+                print("FILTERED:", headline)
                 posted_news.add(article_id)
                 continue
 
